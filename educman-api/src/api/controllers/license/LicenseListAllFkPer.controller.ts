@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { LicenseListAllByFkPerService } from "../../../services/license/LicenseListAllFkPer.service";
+import { LicenseListAllByFkPerService } from "../../../services/license/LicenseListAllByFkPer.service";
 
 
 class LicenseListAllByFkPerController {

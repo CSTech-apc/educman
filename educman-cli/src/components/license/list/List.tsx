@@ -26,6 +26,7 @@ export default function List(
   { listLicenses }: ListLicensesModel,
   { listPeriods }: ListPeriodsModel
 ) {
+
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
 
   const [year, setYear] = useState<string>('')
@@ -37,8 +38,11 @@ export default function List(
   const [list, setList] = useState(listLicenses || [])
   const [listPer, setListPer] = useState(listPeriods || [])
 
+  {/* PERIODO PAGINATION FILTER */ }
   const [skipPer, setSkipPer] = useState<number>(0)
   const [takePer, setTakePer] = useState<number>(5)
+
+  {/* LICENSE PAGINATION FILTER */ }
   const [skipLic, setSkipLic] = useState<number>(0)
   const [takeLic, setTakeLic] = useState<number>(5)
 
@@ -51,9 +55,14 @@ export default function List(
 
   const [actionControl, setActionControl] = useState<string>('')
 
-  {
-    /* license */
-  }
+  {/* STATUS LIST FILTER */ }
+  const listStatus = [
+    { id: 1, status: 'ACT' },
+    { id: 2, status: 'EXP' },
+    { id: 3, status: 'SUS' },
+  ]
+
+  {/* LICENSES */ }
   const [isOpenPer, setIsOpenPer] = useState<boolean>(true)
 
   const [pkLic, setPkLic] = useState<string>('')
@@ -63,22 +72,37 @@ export default function List(
   const [initDate, setInitDate] = useState<string>('')
   const [finDate, setFinDate] = useState<string>('')
   const [status, setStatus] = useState<string>('')
-  const [pkPer, setPkPer] = useState<string>('')
 
-  async function licenseListFct() {
-    const response = await api.get('/licenses', {
-      params: {
-        skip: skipLic,
-        take: takeLic
-      }
-    })
+  const [fkPerFilter, setFkPerFilter] = useState<string>('')
 
-    setList(response.data.licenses)
-    // setTotalRecords(response.data.total)
-    // setTotalPages(response.data.totalPage)
+  async function licenseList() {
+    if (fkPerFilter.length === 0) {
+      const response = await api.get('/licenses', {
+        params: {
+          skip: skipLic,
+          take: takeLic
+        }
+      })
+
+      setList(response.data.licenses)
+      // setTotalRecords(response.data.total)
+      // setTotalPages(response.data.totalPage)
+    } else if (fkPerFilter.length > 0) {
+      const response = await api.get('/licenses/fkper', {
+        params: {
+          skip: skipLic,
+          take: takeLic,
+          fkper: fkPerFilter,
+        }
+      })
+
+      setList(response.data.licenses)
+      // setTotalRecords(response.data.total)
+      // setTotalPages(response.data.totalPage)
+    }
   }
 
-  async function periodListFct() {
+  async function periodListFilter() {
     const response = await api.get('/periods', {
       params: {
         skip: skipPer,
@@ -87,8 +111,8 @@ export default function List(
     })
 
     setListPer(response.data.periods)
-    setTotalRecords(response.data.total)
-    setTotalPages(response.data.totalPage)
+    // setTotalRecords(response.data.total)
+    // setTotalPages(response.data.totalPage)
   }
 
   async function periodFilterFct() {
@@ -102,16 +126,16 @@ export default function List(
 
       setList(response.data)
     } else {
-      periodListFct()
+      periodListFilter()
       setSkipPer(0)
       setCurrentPage(1)
     }
   }
 
   useEffect(() => {
-    periodListFct()
-    licenseListFct()
-  }, [listLicenses, skipPer])
+    periodListFilter()
+    licenseList()
+  }, [listLicenses, skipPer, fkPerFilter])
 
   function nextPage() {
     if (currentPage < totalPages) {
@@ -129,7 +153,7 @@ export default function List(
     }
   }
   function isOpenModalShow() {
-    setPkPer('')
+    setFkPerFilter('')
     setPkLic('')
     setIsOpenModal(true)
   }
@@ -138,7 +162,7 @@ export default function List(
     if (nrle.length >= 14) {
       const response = await api.get('/licenses/check', {
         params: {
-          fkPer: pkPer,
+          fkPer: fkPerFilter,
           nrle: nrle
         }
       })
@@ -167,7 +191,7 @@ export default function List(
   }
 
   async function addRegister() {
-    if (pkPer.length <= 0) {
+    if (fkPerFilter.length <= 0) {
       const yearFormat = moment(year).format('YYYY-MM-DD')
       const dateFormat = 'T00:00:00.000Z'
       const response = await api.post('/periods', {
@@ -180,35 +204,35 @@ export default function List(
     }
 
     setIsSuccess(true)
-    periodListFct()
+    periodListFilter()
   }
 
   function clearFields() {
-    setIsOpenPer(true)
-    setPkPer('')
-    setPkLic('')
-    setGetYear('')
-    setGetYearAdd('')
-    setYear('')
-    setMessage('')
-    setIsOpenModal(!isOpenModal)
-    setIsConfirm(true)
-    setIsSuccess(false)
+    // setIsOpenPer(true)
+    // setFkPer('')
+    // setPkLic('')
+    // setGetYear('')
+    // setGetYearAdd('')
+    // setYear('')
+    // setMessage('')
+    // setIsOpenModal(!isOpenModal)
+    // setIsConfirm(true)
+    // setIsSuccess(false)
   }
 
   function confirmDelete() {
-    setIsConfirm(false)
-    setActionControl('delete')
+    // setIsConfirm(false)
+    // setActionControl('delete')
   }
 
   function backVerify() {
-    setIsOpenPer(true)
-    setGetYear('')
-    // setGetYearAdd("")
-    setYear('')
-    setMessage('')
-    setIsConfirm(true)
-    setIsSuccess(false)
+    // setIsOpenPer(true)
+    // setGetYear('')
+    // // setGetYearAdd("")
+    // setYear('')
+    // setMessage('')
+    // setIsConfirm(true)
+    // setIsSuccess(false)
   }
 
   {
@@ -217,7 +241,7 @@ export default function List(
   async function editRecord() {
     const yearFormat = moment(getYear).format('YYYY-MM-DD')
     await api.put('/periods', {
-      pkPer: pkPer,
+      pkPer: fkPerFilter,
       year: yearFormat
     })
   }
@@ -234,18 +258,12 @@ export default function List(
 
     setIsSuccess(true)
     setIsConfirm(true)
-    periodListFct()
+    periodListFilter()
   }
 
-  function getPkPer(pk: string) {
-    setNrle('')
-    console.log('pkPer: ' + pk)
-    setPkPer(pk)
-    getDataRecordPer(pk)
-
-    setIsOpenPer(false)
-    setIsSuccess(false)
-    setIsConfirm(false)
+  function getPkPerFilter(pk: string) {
+    console.log("pkPer: " + pk)
+    setFkPerFilter(pk)
   }
 
   function getPkLic(pk: string) {
@@ -277,6 +295,62 @@ export default function List(
 
   return (
     <>
+      {/* START FILTER */}
+      <div className='flex items-center'>
+
+        {/* START PERIOD LIST FILTER */}
+        <div className="flex gap-3 p-2 items-center">
+          <IoIosArrowBack
+            onClick={previousPage}
+            className="bg-slate-900 text-white rounded-full
+              w-6 h-6 p-[4px] hover:bg-slate-800 hover:cursor-pointer"
+          />
+          {listPer.map((item) => (
+            <li
+              key={item.pkPer}
+              className="flex flex-row bg-slate-200 rounded-md
+                        justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer"
+              onClick={() => getPkPerFilter(item.pkPer)}
+            >
+              <span className="text-[15px]">
+                {moment(item.year).add(1, 'year').format('YYYY')}
+              </span>
+            </li>
+          ))}
+          <IoIosArrowForward
+            onClick={nextPage}
+            className="bg-slate-900 text-white rounded-full
+              w-6 h-6 p-[4px] hover:bg-slate-800 hover:cursor-pointer"
+          />
+        </div>
+        {/* FINAL PERIOD LIST FILTER */}
+
+        {/* START STATUS LIST FILTER */}
+        <div className="flex gap-3 p-2 items-center">
+          {listStatus.map((item) => (
+            <li
+              key={item.id}
+              className="flex flex-row bg-slate-200 rounded-md
+                        justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer"
+              onClick={() => getPkPerFilter(String(item.id))}
+            >
+              <span className="text-[15px]">
+                {item.status}
+              </span>
+            </li>
+          ))}
+        </div>
+
+
+      </div>
+      {/* FINAL FILTER */}
+
+
+
+
+
+
+      {/* START MODAL */}
       <div
         className={`${isOpenModal &&
           'w-full flex flex-col h-full bg-slate-600 items-center justify-center bg-opacity-80 absolute right-0 top-0'
@@ -293,7 +367,7 @@ export default function List(
                 <span className="text-slate-700">Licenca</span>
                 <IoIosArrowForward className="text-green-400" size={20} />
                 <div className="text-slate-400 flex flex-row w-full items-center justify-between">
-                  {pkPer && pkLic ? (
+                  {fkPerFilter && pkLic ? (
                     <div className="flex flex-row gap-2 w-full">
                       "Editar/excluir registro:
                       <span className="text-slate-600">{getYearAdd}</span>
@@ -301,7 +375,7 @@ export default function List(
                   ) : (
                     <p>Adicionar novo registro:</p>
                   )}
-                  {pkPer && (
+                  {fkPerFilter && (
                     <div className="flex flex-row gap-2">
                       <p className="text-[14px] text-slate-700">
                         Periodo selecionado:
@@ -332,7 +406,7 @@ export default function List(
                         key={item.pkPer}
                         className="flex flex-row bg-slate-200 rounded-md
                         justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer"
-                        onClick={() => getPkPer(item.pkPer)}
+                        onClick={() => getPkPerFilter(item.pkPer)}
                       >
                         <span className="text-[15px]">
                           {moment(item.year).add(1, 'year').format('YYYY')}
@@ -348,7 +422,7 @@ export default function List(
                 </div>
               )}
 
-              {!isConfirm && !isSuccess && pkPer ? (
+              {!isConfirm && !isSuccess && fkPerFilter ? (
                 <div className="relative">
                   {actionControl === 'add' ? (
                     <>
@@ -459,9 +533,9 @@ export default function List(
                   border="border-[0px]"
                   widthdiv="w-[28rem]"
                   widthinput="w-[10rem]"
-                  value={pkPer.length <= 0 ? year : getYear}
+                  value={fkPerFilter.length <= 0 ? year : getYear}
                   onChange={
-                    pkPer.length <= 0
+                    fkPerFilter.length <= 0
                       ? (e) => setYear(e.target.value)
                       : (e) => setGetYear(e.target.value)
                   }
@@ -477,9 +551,9 @@ export default function List(
                       border="border-[0px]"
                       widthdiv="w-[28rem]"
                       widthinput="w-[10rem]"
-                      value={pkPer.length <= 0 ? year : getYear}
+                      value={fkPerFilter.length <= 0 ? year : getYear}
                       onChange={
-                        pkPer.length <= 0
+                        fkPerFilter.length <= 0
                           ? (e) => setYear(e.target.value)
                           : (e) => setGetYear(e.target.value)
                       }
@@ -541,7 +615,7 @@ export default function List(
                               icon={
                                 <AiOutlineDelete
                                   size={20}
-                                  onClick={() => deleteRecord(pkPer)}
+                                  onClick={() => deleteRecord(fkPerFilter)}
                                 />
                               }
                             />
@@ -568,36 +642,39 @@ export default function List(
           </div>
         )}
       </div>
+      {/* FINAL MODAL */}
 
-      <ul className="w-auto h-auto flex bg-green-50 flex-wrap p-3 gap-2 m-4 rounded-lg shadow relative pt-10">
-        <InputBasic
-          // title="Filtrar registros:"
-          bgcolor="bg-slate-100"
-          widthdiv="w-[28rem]"
-          border="border-[1px] border-slate-300"
-          widthinput="w-[10rem]"
-          icon={<IoIosSearch size={18} />}
-          onKeyUp={periodFilterFct}
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-          placeholder="Pesquise seus registros."
-          absolute="absolute"
-          top="-top-8"
-          right="right-0"
-        />
 
-        <BtnIsOpenModal
-          isOpenModal={isOpenModalShow}
-          width="w-80"
-          hight="h-32"
-        />
+      {/* START LIST LICENSES */}
+      <ul className="w-auto h-auto flex flex-wrap p-3 gap-2 m-4 relative pt-10">
+        {/* <InputBasic */}
+        {/*   // title="Filtrar registros:" */}
+        {/*   bgcolor="bg-slate-100" */}
+        {/*   widthdiv="w-[28rem]" */}
+        {/*   border="border-[1px] border-slate-300" */}
+        {/*   widthinput="w-[10rem]" */}
+        {/*   icon={<IoIosSearch size={18} />} */}
+        {/*   onKeyUp={periodFilterFct} */}
+        {/*   value={year} */}
+        {/*   onChange={(e) => setYear(e.target.value)} */}
+        {/*   placeholder="Pesquise seus registros." */}
+        {/*   absolute="absolute" */}
+        {/*   top="-top-8" */}
+        {/*   right="right-0" */}
+        {/* /> */}
+
+        {/* <BtnIsOpenModal */}
+        {/*   isOpenModal={isOpenModalShow} */}
+        {/*   width="w-80" */}
+        {/*   hight="h-32" */}
+        {/* /> */}
 
         {list.map((item) => (
           <li
             key={item.pkLic}
             className="w-80 h-32 bg-white rounded-md shadow p-3
               flex flex-col hover:bg-green-100 hover:cursor-pointer relative"
-            onClick={() => getPkPer(item.pkLic)}
+            onClick={() => getPkPerFilter(item.pkLic)}
           >
             <span
               className="text-[10px] absolute h-4 w-8 flex items-start
@@ -630,16 +707,18 @@ export default function List(
           </li>
         ))}
 
-        <Pagination
-          width="w-80"
-          height="h-32"
-        // totalRecords={totalRecords}
-        // totalPages={totalPages}
-        // currentPage={currentPage}
-        // nextPage={nextPage}
-        // previousPage={previousPage}
-        />
+        {/* <Pagination */}
+        {/*   width="w-80" */}
+        {/*   height="h-32" */}
+        {/*   totalRecords={totalRecords} */}
+        {/*   totalPages={totalPages} */}
+        {/*   currentPage={currentPage} */}
+        {/*   nextPage={nextPage} */}
+        {/*   previousPage={previousPage} */}
+        {/* /> */}
       </ul>
+      {/* FINAL LIST LICENSES */}
+
     </>
   )
 }

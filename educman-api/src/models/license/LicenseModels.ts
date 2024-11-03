@@ -28,8 +28,10 @@ export interface LicenseListAllByFkPerReq {
   fkPer: string;
 }
 
-/* list all by period and status */
+/* list all pagination by fkper and status */
 export interface LicenseListAllByFkPerStatusReq {
+  skip: number;
+  take: number;
   fkPer: string;
   status: string;
 }

@@ -5,12 +5,17 @@ import { LicenseListAllByFkPerStatusService } from "../../../services/license/Li
 class LicenseListAllByFkPerStatusController {
   async handle(req: Request, res: Response) {
 
+    const skip = Number(req?.query?.skip) || 0;
+    const take = Number(req?.query?.take) || 0;
     const fkPer = req.query.fkper as string;
     const status = req.query.status as string;
+
 
     const licenseListAllPeriodService = new LicenseListAllByFkPerStatusService();
 
     const license = await licenseListAllPeriodService.execute({
+      skip,
+      take,
       fkPer,
       status,
     });
