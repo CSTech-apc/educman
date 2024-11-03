@@ -1,16 +1,16 @@
 import prismaClient from "../../prisma";
 
-import { PeriodFilterReq } from "../../models/period/PeriodModels";
+import { PeriodFindByYearReq } from "../../models/period/PeriodModels";
 import moment from "moment";
 
-class PeriodFilterService {
-  async execute({ year }: PeriodFilterReq) {
+class PeriodFindByYearService {
+  async execute({ year }: PeriodFindByYearReq) {
     const yearFormat = moment(
       year,
       "YYYY-MM-DDT00:00:00:000Z"
     ).toISOString();
 
-    const filter = await prismaClient.period.findMany({
+    const find = await prismaClient.period.findFirst({
       where: {
         year: yearFormat,
       },
@@ -20,8 +20,8 @@ class PeriodFilterService {
       },
     });
 
-    return filter;
+    return find;
   }
 }
 
-export { PeriodFilterService };
+export { PeriodFindByYearService };

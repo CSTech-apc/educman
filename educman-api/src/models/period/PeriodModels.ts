@@ -15,12 +15,12 @@ export interface PeriodPagination {
 }
 
 /* filter by pk */
-export interface PeriodFilterByPkReq {
+export interface PeriodFindByPkPerReq {
   pkPer: string;
 }
 
 /* filter by year */
-export interface PeriodFilterReq {
+export interface PeriodFindByYearReq {
   year: string;
 }
 

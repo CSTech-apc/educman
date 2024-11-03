@@ -1,22 +1,24 @@
 import { Request, Response } from "express";
 
-import { PeriodFilterByPkService } from "../../../services/period/PeriodfindByPk.service";
+import { PeriodFindByPkPerService } from "../../../services/period/PeriodfindByPkPer.service";
 
-class PeriodFilterByPkController {
+class PeriodFindByPkPerController {
   async handle(req: Request, res: Response) {
-    const pkPer = req.query.pkPer as string;
-    const periodFilterByPkService = new PeriodFilterByPkService();
-    const period = await periodFilterByPkService.execute({
+
+    const pkPer = req.query.pkper as string;
+    const periodFindByPkPerService = new PeriodFindByPkPerService();
+
+    const find = await periodFindByPkPerService.execute({
       pkPer,
     });
 
-    if (!period) {
-      return res.status(204).json(period);
+    if (!find) {
+      return res.status(204).json(find);
     } else {
-      return res.status(200).json(period);
+      return res.status(200).json(find);
     }
 
   }
 }
 
-export { PeriodFilterByPkController };
+export { PeriodFindByPkPerController };
