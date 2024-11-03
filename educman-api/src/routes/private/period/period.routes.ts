@@ -7,7 +7,7 @@ import { PeriodListAllController } from "../../../api/controllers/period/PeriodL
 import { PeriodFindByYearController } from "../../../api/controllers/period/PeriodFilter.controller";
 import { PeriodFindByPkPerController } from "../../../api/controllers/period/PeriodFilterByPk.controller";
 import { PeriodUpdateController } from "../../../api/controllers/period/PeriodUpdateController";
-import { PeriodRemoveController } from "../../../api/controllers/period/PeriodRemove.controller";
+import { PeriodDeleteController } from "../../../api/controllers/period/PeriodDelete.controller";
 
 period_router.get(
   "/educman/api/v1/periods/check",
@@ -41,7 +41,7 @@ period_router.put(
 
 period_router.delete(
   "/educman/api/v1/periods",
-  new PeriodRemoveController().handle
+  new PeriodDeleteController().handle
 );
 
 export { period_router };

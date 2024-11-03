@@ -1,9 +1,9 @@
 import prismaClient from "../../prisma";
 
-import { PeriodRemoveReq } from "../../models/period/PeriodModels";
+import { PeriodDeleteReq } from "../../models/period/PeriodModels";
 
-class PeriodRemoveService {
-  async execute({ pkPer }: PeriodRemoveReq) {
+class PeriodDeleteService {
+  async execute({ pkPer }: PeriodDeleteReq) {
     const remove = await prismaClient.period.delete({
       where: {
         pkPer,
@@ -18,4 +18,4 @@ class PeriodRemoveService {
   }
 }
 
-export { PeriodRemoveService };
+export { PeriodDeleteService };

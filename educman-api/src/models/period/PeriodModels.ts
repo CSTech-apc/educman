@@ -31,6 +31,6 @@ export interface PeriodUpdateReq {
 }
 
 /* to remove */
-export interface PeriodRemoveReq {
+export interface PeriodDeleteReq {
   pkPer: string;
 }
