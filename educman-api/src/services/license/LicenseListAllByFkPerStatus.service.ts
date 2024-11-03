@@ -33,6 +33,7 @@ class LicenseListAllByFkPerStatusService {
       prismaClient.license.count({
         where: {
           fkPer: fkPer,
+          status: status,
         },
       }),
     ]);

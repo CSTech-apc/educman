@@ -39,8 +39,8 @@ export default function List(
   const [listPer, setListPer] = useState(listPeriods || [])
 
   {/* PERIODO PAGINATION FILTER */ }
-  const [skipPer, setSkipPer] = useState<number>(0)
-  const [takePer, setTakePer] = useState<number>(5)
+  const [skipPerFilter, setSkipPerFilter] = useState<number>(0)
+  const [takePerFilter, setTakePerFilter] = useState<number>(5)
 
   {/* LICENSE PAGINATION FILTER */ }
   const [skipLic, setSkipLic] = useState<number>(0)
@@ -85,9 +85,12 @@ export default function List(
       })
 
       setList(response.data.licenses)
-      // setTotalRecords(response.data.total)
-      // setTotalPages(response.data.totalPage)
-    } else if (fkPerFilter.length > 0) {
+      setTotalRecords(response.data.total)
+      setTotalPages(response.data.totalPage)
+      console.log("licenses")
+    }
+
+    if (fkPerFilter.length > 0) {
       const response = await api.get('/licenses/fkper', {
         params: {
           skip: skipLic,
@@ -97,16 +100,34 @@ export default function List(
       })
 
       setList(response.data.licenses)
-      // setTotalRecords(response.data.total)
-      // setTotalPages(response.data.totalPage)
+      setTotalRecords(response.data.total)
+      setTotalPages(response.data.totalPage)
+      console.log("fkper")
     }
+
+    if (fkPerFilter.length > 0 && status.length > 0) {
+      const response = await api.get('/licenses/fkper-status', {
+        params: {
+          skip: skipLic,
+          take: takeLic,
+          fkper: fkPerFilter,
+          status: status,
+        }
+      })
+
+      setList(response.data.licenses)
+      setTotalRecords(response.data.total)
+      setTotalPages(response.data.totalPage)
+      console.log("fkper-status")
+    }
+
   }
 
   async function periodListFilter() {
     const response = await api.get('/periods', {
       params: {
-        skip: skipPer,
-        take: takePer
+        skip: skipPerFilter,
+        take: takePerFilter
       }
     })
 
@@ -127,7 +148,7 @@ export default function List(
       setList(response.data)
     } else {
       periodListFilter()
-      setSkipPer(0)
+      setSkipPerFilter(0)
       setCurrentPage(1)
     }
   }
@@ -135,21 +156,23 @@ export default function List(
   useEffect(() => {
     periodListFilter()
     licenseList()
-  }, [listLicenses, skipPer, fkPerFilter])
+  }, [listLicenses, skipLic, fkPerFilter, status])
 
   function nextPage() {
+    // setFkPerFilter("")
+    // setStatus("")
     if (currentPage < totalPages) {
-      setSkipPer(skipPer + 5)
+      setSkipLic(skipLic + 5)
       setCurrentPage(currentPage + 1)
-      console.log('nextPage: ' + currentPage)
     }
   }
 
   function previousPage() {
+    // setFkPerFilter("")
+    // setStatus("")
     if (currentPage > 1) {
-      setSkipPer(skipPer - 5)
+      setSkipLic(skipLic - 5)
       setCurrentPage(currentPage - 1)
-      console.log('previousPage: ' + currentPage)
     }
   }
   function isOpenModalShow() {
@@ -170,11 +193,9 @@ export default function List(
       const checkYear = response.data
 
       if (checkYear) {
-        console.log('ja consta!!!!')
         setDuplicate(true)
         setMessage('Registro ja consta no sistema!')
       } else {
-        console.log('nao consta!!!!')
         setDuplicate(false)
         setMessage('Ok! Para continuar clique ao lado.')
       }
@@ -262,7 +283,7 @@ export default function List(
   }
 
   function getPkPerFilter(pk: string) {
-    console.log("pkPer: " + pk)
+    setStatus("")
     setFkPerFilter(pk)
   }
 
@@ -293,13 +314,17 @@ export default function List(
     setGetYearAdd(response.data.university)
   }
 
+  function getStatus(id: number, status: string) {
+    setStatus(status)
+  }
+
   return (
     <>
       {/* START FILTER */}
-      <div className='flex items-center'>
+      <div className='flex items-center w-full gap-4'>
 
         {/* START PERIOD LIST FILTER */}
-        <div className="flex gap-3 p-2 items-center">
+        <div className="flex gap-2 p-2 items-center">
           <IoIosArrowBack
             onClick={previousPage}
             className="bg-slate-900 text-white rounded-full
@@ -312,7 +337,7 @@ export default function List(
                         justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer"
               onClick={() => getPkPerFilter(item.pkPer)}
             >
-              <span className="text-[15px]">
+              <span className="text-[14px]">
                 {moment(item.year).add(1, 'year').format('YYYY')}
               </span>
             </li>
@@ -326,22 +351,34 @@ export default function List(
         {/* FINAL PERIOD LIST FILTER */}
 
         {/* START STATUS LIST FILTER */}
-        <div className="flex gap-3 p-2 items-center">
+        <div className="flex gap-2 p-2 items-center">
           {listStatus.map((item) => (
             <li
               key={item.id}
               className="flex flex-row bg-slate-200 rounded-md
                         justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer"
-              onClick={() => getPkPerFilter(String(item.id))}
+              onClick={() => getStatus(item.id, item.status)}
             >
-              <span className="text-[15px]">
+              <span className="text-[13px]">
                 {item.status}
               </span>
             </li>
           ))}
         </div>
 
-
+        <div className='flex ml-2'>
+          <InputBasic
+            bgcolor="bg-slate-100"
+            widthdiv="w-[28rem]"
+            border="border-[1px] border-slate-400"
+            widthinput="w-[10rem]"
+            icon={<IoIosSearch size={18} />}
+            onKeyUp={periodFilterFct}
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            placeholder="Pesquise seus registros"
+          />
+        </div>
       </div>
       {/* FINAL FILTER */}
 
@@ -647,21 +684,6 @@ export default function List(
 
       {/* START LIST LICENSES */}
       <ul className="w-auto h-auto flex flex-wrap p-3 gap-2 m-4 relative pt-10">
-        {/* <InputBasic */}
-        {/*   // title="Filtrar registros:" */}
-        {/*   bgcolor="bg-slate-100" */}
-        {/*   widthdiv="w-[28rem]" */}
-        {/*   border="border-[1px] border-slate-300" */}
-        {/*   widthinput="w-[10rem]" */}
-        {/*   icon={<IoIosSearch size={18} />} */}
-        {/*   onKeyUp={periodFilterFct} */}
-        {/*   value={year} */}
-        {/*   onChange={(e) => setYear(e.target.value)} */}
-        {/*   placeholder="Pesquise seus registros." */}
-        {/*   absolute="absolute" */}
-        {/*   top="-top-8" */}
-        {/*   right="right-0" */}
-        {/* /> */}
 
         {/* <BtnIsOpenModal */}
         {/*   isOpenModal={isOpenModalShow} */}
@@ -707,15 +729,15 @@ export default function List(
           </li>
         ))}
 
-        {/* <Pagination */}
-        {/*   width="w-80" */}
-        {/*   height="h-32" */}
-        {/*   totalRecords={totalRecords} */}
-        {/*   totalPages={totalPages} */}
-        {/*   currentPage={currentPage} */}
-        {/*   nextPage={nextPage} */}
-        {/*   previousPage={previousPage} */}
-        {/* /> */}
+        <Pagination
+          width="w-80"
+          height="h-32"
+          totalRecords={totalRecords}
+          totalPages={totalPages}
+          currentPage={currentPage}
+          nextPage={nextPage}
+          previousPage={previousPage}
+        />
       </ul>
       {/* FINAL LIST LICENSES */}
 

@@ -48,8 +48,7 @@ export default function InputBasic({
   type }: InputBasicProps) {
   return (
     <>
-      <div className={`flex flex-col
-        border-t-[0px] border-dashed border-slate-400 rounded-lg ${top} ${right} ${absolute}`}>
+      <div className={`flex rounded-lg ${top} ${right} ${absolute}`}>
         <span className="text-slate-500 mt-0 ml-0">{title}</span>
         <div className={`flex flex-row items-center bg-white h-[1.8rem] ${widthdiv}
 
@@ -66,7 +65,7 @@ export default function InputBasic({
               readOnly={readOnly}
             />
           </div>
-          <div className="flex items-center gap-2 w-full justify-end pr-3">
+          <div className="flex items-center gap-2 w-full justify-end pr-2">
             <span className={`${colormessage} text-[12px]`}>{message}</span>
             <div className={`rounded-full ${bgcolor} ${hovercolor} ${icocolor} h-6 w-6 flex items-center justify-center`}>
               {icon}
