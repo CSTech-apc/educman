@@ -34,6 +34,7 @@ export default function List(
   const [message, setMessage] = useState<string>('')
   const [isConfirm, setIsConfirm] = useState<boolean>(true)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
+  const [onFocus, setOnFocus] = useState<boolean>(false)
 
   const [list, setList] = useState(listLicenses || [])
   const [listPer, setListPer] = useState(listPeriods || [])
@@ -358,14 +359,18 @@ export default function List(
     licenseListFkPerStatus(fkPerFilter, status)
   }
 
+  function onFocusInput() {
+    setOnFocus(true)
+  }
+
   return (
     <>
       {/* START FILTER */}
-      <div className='flex items-center justify-start w-auto pl-3 h-auto gap-0 flex-wrap bg-slate-50 shadow-md m-4 p-2 rounded-md'>
+      <div className='flex items-center justify-start w-auto pl-3 h-auto gap-2 flex-wrap bg-slate-50 shadow-md m-0 p-2'>
 
-        <span className='flex text-[16px] gap-2 text-slate-700'>Filtros de pesquisa</span>
+        <span className='flex text-[15px] gap-2 text-slate-700'>Filtros de pesquisa:</span>
         {/* START PERIOD LIST FILTER */}
-        <div className="flex gap-2 p-2 items-center">
+        <div className="flex gap-2 p-2 items-center bg-white shadow rounded-[4px]">
           <span className='flex text-[14px] gap-2 text-slate-700'>Periodo<p className='w-[1px] h-[20px] bg-slate-700'></p></span>
           <IoIosArrowBack
             onClick={previousPagePer}
@@ -375,7 +380,7 @@ export default function List(
           {listPer.map((item) => (
             <li
               key={item.pkPer}
-              className={`flex flex-row bg-slate-200 ${item.pkPer === fkPerFilter && "border-[2px] border-green-500"} rounded-md
+              className={`flex flex-row ${item.pkPer === fkPerFilter ? "border-[2px] border-green-500" : "border-[2px] border-slate-200 bg-white"} rounded-md
                         justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer`}
               onClick={() => getPkPerFilter(item.pkPer)}
             >
@@ -393,35 +398,38 @@ export default function List(
         {/* FINAL PERIOD LIST FILTER */}
 
         {/* START STATUS LIST FILTER */}
-        <div className="flex gap-2 p-2 items-center">
+        <div className="flex gap-2 p-2 items-center bg-white shadow rounded-[4px]">
           <span className='flex text-[14px] gap-2 text-slate-700'>Status<p className='w-[1px] h-[20px] bg-slate-700'></p></span>
           {listStatus.map((item) => (
             <li
               key={item.id}
-              className={`flex flex-row bg-slate-200 rounded-md ${item.status === status && "border-[2px] border-green-500"}
+              className={`flex flex-row rounded-md ${item.status === status ? "border-[2px] border-green-500" : "border-[2px] border-slate-200 bg-white"}
                         justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer`}
               onClick={() => getStatus(item.id, item.status)}
             >
               <span className="text-[13px]">
-                {item.status}
+                {item.status === "ACT" && <span>ATIV</span>}
+                {item.status === "EXP" && <span>EXP</span>}
+                {item.status === "SUS" && <span>SUS</span>}
               </span>
             </li>
           ))}
         </div>
 
         {/* START UNIVERSITY LIST FILTER */}
-        <div className='flex ml-2 gap-2 items-center'>
+        <div className='flex gap-2 h-[2.4rem] w-auto pl-2 pr-2.5 items-center bg-white shadow rounded-[4px] '>
           <span className='flex text-[14px] gap-2 text-slate-700'>Universidade<p className='w-[1px] h-[20px] bg-slate-700'></p></span>
           <InputBasic
             bgcolor="bg-slate-100"
             widthdiv="w-[28rem]"
-            border="border-[1px] border-slate-400"
+            border="border-[1px] border-slate-200"
             widthinput="w-[10rem]"
             icon={<IoIosSearch size={18} />}
             onKeyUp={() => licenseListFkPerStatusUniversity(fkPerFilter, status, university)}
             value={university}
             onChange={(e) => setUniversity(e.target.value)}
             placeholder="Pesquise seus registros"
+            onFocus={onFocusInput}
           />
         </div>
         {/* FINAL UNIVERSITY LIST FILTER */}
@@ -731,13 +739,13 @@ export default function List(
 
 
       {/* START LIST LICENSES */}
-      <ul className="w-auto h-auto flex flex-wrap p-3 gap-2 m-4 relative pt-10">
+      <ul className="w-auto h-auto flex flex-wrap gap-2 m-3 relative pt-0">
 
-        {/* <BtnIsOpenModal */}
-        {/*   isOpenModal={isOpenModalShow} */}
-        {/*   width="w-80" */}
-        {/*   hight="h-32" */}
-        {/* /> */}
+        <BtnIsOpenModal
+          isOpenModal={isOpenModalShow}
+          width="w-80"
+          hight="h-32"
+        />
 
         {list.map((item) => (
           <li
@@ -747,10 +755,14 @@ export default function List(
             onClick={() => getPkPerFilter(item.pkLic)}
           >
             <span
-              className="text-[10px] absolute h-4 w-8 flex items-start
-                justify-center top-4 right-4 bg-sky-700 text-white rounded-md"
+              className={`text-[10px] absolute h-4 w-8 flex items-start justify-center top-4 right-4 text-black rounded-md
+              ${item.status === "ACT" && "bg-sky-300"}
+              ${item.status === "EXP" && "bg-yellow-300"}
+              ${item.status === "SUS" && "bg-red-300"}`}
             >
-              {item.status}
+              {item.status === "ACT" && <span>ATIV</span>}
+              {item.status === "EXP" && <span>EXP</span>}
+              {item.status === "SUS" && <span>SUS</span>}
             </span>
 
             <div>
@@ -762,15 +774,15 @@ export default function List(
               </div>
             </div>
 
-            <div className="flex flex-col justify-center w-full h-full items-center pl-6 gap-1">
+            <div className="flex flex-col justify-center w-full h-full items-center pl-8 gap-1">
               <div className="flex flex-col items-start justify-start w-full">
-                <span className="text-[14px]">{item.university}</span>
+                <span className="text-[13px]">{item.university}</span>
                 <span className="text-[12px] -mt-1 text-slate-500">
                   Universidade/Escola
                 </span>
               </div>
               <div className="flex flex-col items-start justify-start w-full">
-                <span className="text-[14px]">{item.nrle}</span>
+                <span className="text-[13px]">{item.nrle}</span>
                 <span className="text-[12px] -mt-1 text-slate-500">Cnpj</span>
               </div>
             </div>

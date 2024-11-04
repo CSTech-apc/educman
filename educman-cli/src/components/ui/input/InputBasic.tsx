@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 
 interface InputBasicProps {
+  onFocus?: (e: any) => void | any
   onKeyUp?: () => void
   onChange?: (e: any) => void | any
   onSubmit?: (e: any) => void | any
@@ -28,6 +29,7 @@ export default function InputBasic({
   onKeyUp,
   onChange,
   onSubmit,
+  onFocus,
   top,
   right,
   absolute,
@@ -63,6 +65,8 @@ export default function InputBasic({
               value={value}
               onChange={onChange}
               readOnly={readOnly}
+              onFocus={onFocus}
+
             />
           </div>
           <div className="flex items-center gap-2 w-full justify-end pr-2">

@@ -8,7 +8,6 @@ import { LiaCertificateSolid } from "react-icons/lia"
 import { MdOutlineSpaceDashboard } from "react-icons/md"
 import { TbReportAnalytics } from "react-icons/tb"
 import Logo from "../logo/Logo"
-import { IoIosArrowBack } from "react-icons/io"
 import { HiOutlineMenu } from "react-icons/hi"
 
 interface MenuProps {
@@ -35,7 +34,7 @@ export default function Menu({ verififyUser }: MenuProps) {
   return (
     <ul className={`flex flex-col h-full shadow ${isOpenMenu ? "w-[16rem] items-start pl-0" : "w-[4rem] items-center"} duration-300`}>
 
-      <HiOutlineMenu className={`bg-green-800 w-8 h-8 p-1.5 hover:bg-green-700 hover:cursor-pointer rounded-full text-white absolute top-[1rem] -right-[3rem]
+      <HiOutlineMenu className={`bg-green-800 w-8 h-8 p-1 hover:bg-green-700 hover:cursor-pointer border-[2px] border-white rounded-full text-white absolute top-[3.2rem] -right-[1.4rem]
         ${isOpenMenu ? "" : "rotate-180"} duration-500`} onClick={() => setIsOpenMenu(!isOpenMenu)} />
 
       <div className={`w-full flex mb-8 ${isOpenMenu ? "justify-start ml-3" : "justify-center"}`}>
