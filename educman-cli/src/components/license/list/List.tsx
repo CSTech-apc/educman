@@ -46,9 +46,13 @@ export default function List(
   const [skipLic, setSkipLic] = useState<number>(0)
   const [takeLic, setTakeLic] = useState<number>(5)
 
-  const [totalRecords, setTotalRecords] = useState<number>(0)
-  const [totalPages, setTotalPages] = useState<number>(0)
-  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalRecordsLic, setTotalRecordsLic] = useState<number>(0)
+  const [totalPagesLic, setTotalPagesLic] = useState<number>(0)
+  const [currentPageLic, setCurrentPageLic] = useState<number>(1)
+
+  const [totalRecordsFilter, setTotalRecordsFilter] = useState<number>(0)
+  const [totalPagesFilter, setTotalPagesFilter] = useState<number>(0)
+  const [currentPageFilter, setCurrentPageFilter] = useState<number>(1)
 
   const [getYear, setGetYear] = useState<string>('')
   const [getYearAdd, setGetYearAdd] = useState<string>('')
@@ -85,10 +89,12 @@ export default function List(
       })
 
       setList(response.data.licenses)
-      setTotalRecords(response.data.total)
-      setTotalPages(response.data.totalPage)
-      console.log("licenses")
+      setTotalRecordsLic(response.data.total)
+      setTotalPagesLic(response.data.totalPage)
     }
+  }
+
+  async function licenseListFkPer(fkPerFilter: string) {
 
     if (fkPerFilter.length > 0) {
       const response = await api.get('/licenses/fkper', {
@@ -100,10 +106,12 @@ export default function List(
       })
 
       setList(response.data.licenses)
-      setTotalRecords(response.data.total)
-      setTotalPages(response.data.totalPage)
-      console.log("fkper")
+      setTotalRecordsLic(response.data.total)
+      setTotalPagesLic(response.data.totalPage)
     }
+  }
+
+  async function licenseListFkPerStatus(fkPerFilter: string, status: string) {
 
     if (fkPerFilter.length > 0 && status.length > 0) {
       const response = await api.get('/licenses/fkper-status', {
@@ -116,9 +124,29 @@ export default function List(
       })
 
       setList(response.data.licenses)
-      setTotalRecords(response.data.total)
-      setTotalPages(response.data.totalPage)
-      console.log("fkper-status")
+      setTotalRecordsLic(response.data.total)
+      setTotalPagesLic(response.data.totalPage)
+    }
+  }
+
+  async function licenseListFkPerStatusUniversity(fkPerFilter: string, status: string, university: string) {
+
+    if (fkPerFilter.length > 0 && status.length > 0 && university.length > 0) {
+      const response = await api.get('/licenses/fkper-status-university', {
+        params: {
+          skip: skipLic,
+          take: takeLic,
+          fkper: fkPerFilter,
+          status: status,
+          university: university,
+        }
+      })
+
+      setList(response.data.licenses)
+      setTotalRecordsLic(response.data.total)
+      setTotalPagesLic(response.data.totalPage)
+    } else {
+      licenseListFkPerStatus(fkPerFilter, status)
     }
 
   }
@@ -132,8 +160,8 @@ export default function List(
     })
 
     setListPer(response.data.periods)
-    // setTotalRecords(response.data.total)
-    // setTotalPages(response.data.totalPage)
+    setTotalRecordsFilter(response.data.total)
+    setTotalPagesFilter(response.data.totalPage)
   }
 
   async function periodFilterFct() {
@@ -149,30 +177,40 @@ export default function List(
     } else {
       periodListFilter()
       setSkipPerFilter(0)
-      setCurrentPage(1)
+      setCurrentPageLic(1)
     }
   }
 
   useEffect(() => {
     periodListFilter()
     licenseList()
-  }, [listLicenses, skipLic, fkPerFilter, status])
+  }, [listLicenses, listPeriods, skipLic, skipPerFilter, fkPerFilter, status, university])
 
-  function nextPage() {
-    // setFkPerFilter("")
-    // setStatus("")
-    if (currentPage < totalPages) {
+  function nextPageLic() {
+    if (currentPageLic < totalPagesLic) {
       setSkipLic(skipLic + 5)
-      setCurrentPage(currentPage + 1)
+      setCurrentPageLic(currentPageLic + 1)
     }
   }
 
-  function previousPage() {
-    // setFkPerFilter("")
-    // setStatus("")
-    if (currentPage > 1) {
+  function previousPageLic() {
+    if (currentPageLic > 1) {
       setSkipLic(skipLic - 5)
-      setCurrentPage(currentPage - 1)
+      setCurrentPageLic(currentPageLic - 1)
+    }
+  }
+
+  function nextPagePer() {
+    if (currentPageFilter < totalPagesFilter) {
+      setSkipPerFilter(skipPerFilter + 5)
+      setCurrentPageFilter(currentPageFilter + 1)
+    }
+  }
+
+  function previousPagePer() {
+    if (currentPageFilter > 1) {
+      setSkipPerFilter(skipPerFilter - 5)
+      setCurrentPageFilter(currentPageFilter - 1)
     }
   }
   function isOpenModalShow() {
@@ -285,6 +323,7 @@ export default function List(
   function getPkPerFilter(pk: string) {
     setStatus("")
     setFkPerFilter(pk)
+    licenseListFkPer(pk)
   }
 
   function getPkLic(pk: string) {
@@ -316,25 +355,28 @@ export default function List(
 
   function getStatus(id: number, status: string) {
     setStatus(status)
+    licenseListFkPerStatus(fkPerFilter, status)
   }
 
   return (
     <>
       {/* START FILTER */}
-      <div className='flex items-center w-full gap-4'>
+      <div className='flex items-center justify-start w-auto pl-3 h-auto gap-0 flex-wrap bg-slate-50 shadow-md m-4 p-2 rounded-md'>
 
+        <span className='flex text-[16px] gap-2 text-slate-700'>Filtros de pesquisa</span>
         {/* START PERIOD LIST FILTER */}
         <div className="flex gap-2 p-2 items-center">
+          <span className='flex text-[14px] gap-2 text-slate-700'>Periodo<p className='w-[1px] h-[20px] bg-slate-700'></p></span>
           <IoIosArrowBack
-            onClick={previousPage}
+            onClick={previousPagePer}
             className="bg-slate-900 text-white rounded-full
               w-6 h-6 p-[4px] hover:bg-slate-800 hover:cursor-pointer"
           />
           {listPer.map((item) => (
             <li
               key={item.pkPer}
-              className="flex flex-row bg-slate-200 rounded-md
-                        justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer"
+              className={`flex flex-row bg-slate-200 ${item.pkPer === fkPerFilter && "border-[2px] border-green-500"} rounded-md
+                        justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer`}
               onClick={() => getPkPerFilter(item.pkPer)}
             >
               <span className="text-[14px]">
@@ -343,7 +385,7 @@ export default function List(
             </li>
           ))}
           <IoIosArrowForward
-            onClick={nextPage}
+            onClick={nextPagePer}
             className="bg-slate-900 text-white rounded-full
               w-6 h-6 p-[4px] hover:bg-slate-800 hover:cursor-pointer"
           />
@@ -352,11 +394,12 @@ export default function List(
 
         {/* START STATUS LIST FILTER */}
         <div className="flex gap-2 p-2 items-center">
+          <span className='flex text-[14px] gap-2 text-slate-700'>Status<p className='w-[1px] h-[20px] bg-slate-700'></p></span>
           {listStatus.map((item) => (
             <li
               key={item.id}
-              className="flex flex-row bg-slate-200 rounded-md
-                        justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer"
+              className={`flex flex-row bg-slate-200 rounded-md ${item.status === status && "border-[2px] border-green-500"}
+                        justify-center items-center h-[1.3rem] w-[3.5rem] hover:bg-slate-100 hover:cursor-pointer`}
               onClick={() => getStatus(item.id, item.status)}
             >
               <span className="text-[13px]">
@@ -366,19 +409,23 @@ export default function List(
           ))}
         </div>
 
-        <div className='flex ml-2'>
+        {/* START UNIVERSITY LIST FILTER */}
+        <div className='flex ml-2 gap-2 items-center'>
+          <span className='flex text-[14px] gap-2 text-slate-700'>Universidade<p className='w-[1px] h-[20px] bg-slate-700'></p></span>
           <InputBasic
             bgcolor="bg-slate-100"
             widthdiv="w-[28rem]"
             border="border-[1px] border-slate-400"
             widthinput="w-[10rem]"
             icon={<IoIosSearch size={18} />}
-            onKeyUp={periodFilterFct}
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
+            onKeyUp={() => licenseListFkPerStatusUniversity(fkPerFilter, status, university)}
+            value={university}
+            onChange={(e) => setUniversity(e.target.value)}
             placeholder="Pesquise seus registros"
           />
         </div>
+        {/* FINAL UNIVERSITY LIST FILTER */}
+
       </div>
       {/* FINAL FILTER */}
 
@@ -434,7 +481,7 @@ export default function List(
                   </div>
                   <div className="flex gap-3 p-2 items-center">
                     <IoIosArrowBack
-                      onClick={previousPage}
+                      onClick={previousPageLic}
                       className="bg-slate-900 text-white rounded-full
               w-6 h-6 p-[4px] hover:bg-slate-800 hover:cursor-pointer"
                     />
@@ -451,7 +498,7 @@ export default function List(
                       </li>
                     ))}
                     <IoIosArrowForward
-                      onClick={nextPage}
+                      onClick={nextPageLic}
                       className="bg-slate-900 text-white rounded-full
               w-6 h-6 p-[4px] hover:bg-slate-800 hover:cursor-pointer"
                     />
@@ -603,6 +650,7 @@ export default function List(
               )}
 
               <div className="flex w-full justify-end gap-2">
+
                 {/* {pk.length > 0 && !isConfirm && !isSuccess && */}
                 {/*   <> */}
                 {/*     {actionControl === "delete" && */}
@@ -732,11 +780,11 @@ export default function List(
         <Pagination
           width="w-80"
           height="h-32"
-          totalRecords={totalRecords}
-          totalPages={totalPages}
-          currentPage={currentPage}
-          nextPage={nextPage}
-          previousPage={previousPage}
+          totalRecords={totalRecordsLic}
+          totalPages={totalPagesLic}
+          currentPage={currentPageLic}
+          nextPage={nextPageLic}
+          previousPage={previousPageLic}
         />
       </ul>
       {/* FINAL LIST LICENSES */}

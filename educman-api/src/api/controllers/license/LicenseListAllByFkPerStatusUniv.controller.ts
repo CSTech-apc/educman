@@ -5,6 +5,8 @@ import { LicenseListAllByFkPerStatusUnivService } from "../../../services/licens
 class LicenseListAllByFkPerStatusUnivController {
   async handle(req: Request, res: Response) {
 
+    const skip = Number(req?.query?.skip) || 0;
+    const take = Number(req?.query?.take) || 0;
     const fkPer = req.query.fkper as string;
     const status = req.query.status as string;
     const university = req.query.university as string;
@@ -12,6 +14,8 @@ class LicenseListAllByFkPerStatusUnivController {
     const licenseListAllPeriodService = new LicenseListAllByFkPerStatusUnivService();
 
     const license = await licenseListAllPeriodService.execute({
+      skip,
+      take,
       fkPer,
       status,
       university,

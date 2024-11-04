@@ -38,6 +38,8 @@ export interface LicenseListAllByFkPerStatusReq {
 
 /* list all by period and status and university*/
 export interface LicenseListAllByFkPerStatusUnivReq {
+  skip: number;
+  take: number;
   fkPer: string;
   status: string;
   university: string;
