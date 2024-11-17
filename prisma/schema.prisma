@@ -1,0 +1,123 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Period {
+  pkPer    String    @id @default(cuid())
+  year     DateTime  @db.Date
+  licenses License[]
+  users    User[]
+
+  @@map("periods")
+}
+
+model License {
+  pkLic      String     @id @default(cuid())
+  university String     @db.VarChar(255)
+  nrle       String     @db.VarChar(14)
+  nisr       String     @db.VarChar(8)
+  initDate   DateTime   @db.Date
+  finDate    DateTime   @db.Date
+  status     String     @default("ACT") @db.Char(3)
+  period     Period?    @relation(fields: [fkPer], references: [pkPer], onDelete: Cascade)
+  fkPer      String?
+  users      User[]
+  check      Check?
+  Institute  Institute?
+
+  @@fulltext([university])
+  @@fulltext([nrle])
+  @@fulltext([nisr])
+  @@map("licenses")
+}
+
+model Check {
+  checkInst     Boolean  @default(false)
+  checkUser     Boolean  @default(false)
+  checkCalend   Boolean  @default(false)
+  checkFreq     Boolean  @default(false)
+  checkEval     Boolean  @default(false)
+  checkCour     Boolean  @default(false)
+  checkMatrix   Boolean  @default(false)
+  checkDisc     Boolean  @default(false)
+  checkClass    Boolean  @default(false)
+  checkTSheet   Boolean  @default(false)
+  checkStudeReg Boolean  @default(false)
+  checkDiar     Boolean  @default(false)
+  license       License? @relation(fields: [fkLic], references: [pkLic], onDelete: Cascade)
+  fkLic         String   @unique
+
+  @@map("checks")
+}
+
+model Institute {
+  country        String?  @db.VarChar(80)
+  state          String?  @db.VarChar(80)
+  cityCountry    String?  @db.VarChar(80)
+  burgh          String?  @db.VarChar(80)
+  addressCode    String?  @db.Char(8)
+  street         String?  @db.VarChar(80)
+  homeNumber     String?  @db.VarChar(9)
+  instEmail      String?  @db.VarChar(80)
+  instPhone      String?  @db.VarChar(10)
+  instCell       String?  @db.VarChar(11)
+  childEdu       Boolean  @default(false)
+  elementSchoolA Boolean  @default(false)
+  elementSchoolB Boolean  @default(false)
+  highSchool     Boolean  @default(false)
+  eduYoungAdult  Boolean  @default(false)
+  collegeEdu     Boolean  @default(false)
+  morning        Boolean  @default(false)
+  afternoon      Boolean  @default(false)
+  night          Boolean  @default(false)
+  license        License? @relation(fields: [fkLic], references: [pkLic], onDelete: Cascade)
+  fkLic          String   @unique
+
+  @@map("institutes")
+}
+
+model User {
+  pkUser     String      @id @default(cuid())
+  name       String      @db.VarChar(60)
+  surname    String      @db.VarChar(30)
+  nri        String      @db.VarChar(11)
+  profile    String      @db.Char(3)
+  email      String      @db.VarChar(255)
+  password   String      @db.VarChar(255)
+  Period     Period?     @relation(fields: [fkPer], references: [pkPer], onDelete: Cascade)
+  fkPer      String?
+  License    License?    @relation(fields: [fkLic], references: [pkLic], onDelete: Cascade)
+  fkLic      String?
+  permission Permission?
+
+  @@fulltext([name])
+  @@fulltext([nri])
+  @@map("users")
+}
+
+model Permission {
+  permPeriod   Boolean @default(false)
+  permLicense  Boolean @default(false)
+  permInst     Boolean @default(false)
+  permUser     Boolean @default(false)
+  permCalend   Boolean @default(false)
+  permFreq     Boolean @default(false)
+  permEval     Boolean @default(false)
+  permCour     Boolean @default(false)
+  permMatrix   Boolean @default(false)
+  permDisc     Boolean @default(false)
+  permClass    Boolean @default(false)
+  permTSheet   Boolean @default(false)
+  permStudeReg Boolean @default(false)
+  permDiar     Boolean @default(false)
+  user         User?   @relation(fields: [fkUser], references: [pkUser], onDelete: Cascade)
+  fkUser       String  @unique
+
+  @@map("permissions")
+}
